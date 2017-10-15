@@ -1,0 +1,5 @@
+.idea
+*.pyc
+model_logs
+Sunnybrook_online_submission
+Sunnybrook_val_submission

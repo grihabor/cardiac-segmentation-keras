@@ -1,0 +1,17 @@
+version: "2"
+services:
+  bash:
+    image: vuptran_cardiac_segmentation:latest
+    build: .
+    volumes:
+      - .:/project    
+      - /home/grihabor/Desktop/sunnybrook:/sunnybrook_data
+    environment:
+      - LVSC_ROOT_PATH=/lvsc_data
+      - SUNNYBROOK_ROOT_PATH=/sunnybrook_data
+
+  train_sunnybrook:
+    extends:
+      file: docker-compose.yml
+      service: bash
+    command: python train_sunnybrook.py i 0
