@@ -110,17 +110,6 @@ def export_all_contours(contours, data_path, crop_size):
     return images, masks
 
 
-def main():
-    if len(sys.argv) < 3:
-        sys.exit('Usage: python {} <i/o> <gpu_id>'.format(sys.argv[0]))
-
-    os.environ['CUDA_VISIBLE_DEVICES'] = sys.argv[2]
-    train(
-        contour_type=sys.argv[1],
-        crop_size=100,
-    )
-
-
 def train(*, contour_type, crop_size):
 
     print('Mapping ground truth {} contours to images in train...'.format(contour_type))
@@ -225,6 +214,17 @@ def train(*, contour_type, crop_size):
         print('Saving model weights to {:s}'.format(save_path))
 
         model.save_weights(save_path)
+
+
+def main():
+    if len(sys.argv) < 3:
+        sys.exit('Usage: python {} <i/o> <gpu_id>'.format(sys.argv[0]))
+
+    os.environ['CUDA_VISIBLE_DEVICES'] = sys.argv[2]
+    train(
+        contour_type=sys.argv[1],
+        crop_size=100,
+    )
 
 
 if __name__== '__main__':
