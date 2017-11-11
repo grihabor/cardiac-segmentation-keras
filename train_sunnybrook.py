@@ -10,8 +10,12 @@ from itertools import izip, islice
 from fcn_model import fcn_model
 from helpers import center_crop, lr_poly_decay, get_SAX_SERIES
 
-seed = 1234
-np.random.seed(seed)
+SEED = 1234
+
+EPOCH_COUNT = 40
+BATCH_SIZE = 1
+
+np.random.seed(SEED)
 
 SAX_SERIES = get_SAX_SERIES()
 SUNNYBROOK_ROOT_PATH = os.environ['SUNNYBROOK_ROOT_PATH']
@@ -144,35 +148,32 @@ def main():
     image_datagen = ImageDataGenerator(**kwargs)
     mask_datagen = ImageDataGenerator(**kwargs)
 
-    epoch_count = 40
-    mini_batch_size = 1
-
     image_generator = image_datagen.flow(
         img_train,
         shuffle=False,
-        batch_size=mini_batch_size,
-        seed=seed,
+        batch_size=BATCH_SIZE,
+        seed=SEED,
     )
     mask_generator = mask_datagen.flow(
         mask_train,
         shuffle=False,
-        batch_size=mini_batch_size,
-        seed=seed,
+        batch_size=BATCH_SIZE,
+        seed=SEED,
     )
     train_generator = izip(image_generator, mask_generator)
     
-    max_iter = (len(train_ctrs) / mini_batch_size) * epoch_count
+    max_iter = (len(train_ctrs) / BATCH_SIZE) * EPOCH_COUNT
     curr_iter = 0
     base_lr = K.eval(model.optimizer.lr)
     learning_rate = lr_poly_decay(model, base_lr, curr_iter, max_iter, power=0.5)
 
-    for epoch in range(1, epoch_count + 1):
+    for epoch in range(1, EPOCH_COUNT + 1):
         print()
         print('Main Epoch {:d}'.format(epoch))
         print('Learning rate: {:6f}'.format(learning_rate))
         train_result = []
 
-        iter_count = len(img_train) // mini_batch_size
+        iter_count = len(img_train) // BATCH_SIZE
         for img, mask in islice(train_generator, iter_count):
             res = model.train_on_batch(img, mask)
             curr_iter += 1
