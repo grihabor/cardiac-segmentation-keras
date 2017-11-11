@@ -96,28 +96,38 @@ def export_all_contours(contours, data_path, crop_size):
 
 
 if __name__== '__main__':
+
     if len(sys.argv) < 3:
-        sys.exit('Usage: python %s <i/o> <gpu_id>' % sys.argv[0])
+        sys.exit('Usage: python {} <i/o> <gpu_id>'.format(sys.argv[0]))
+
     contour_type = sys.argv[1]
     os.environ['CUDA_VISIBLE_DEVICES'] = sys.argv[2]
     crop_size = 100
 
-    print('Mapping ground truth '+contour_type+' contours to images in train...')
+    print('Mapping ground truth {} contours to images in train...'.format(contour_type))
     train_ctrs = map_all_contours(TRAIN_CONTOUR_PATH, contour_type, shuffle=True)
     print('Done mapping training set')
     
-    split = int(0.1*len(train_ctrs))
+    split = int(0.1 * len(train_ctrs))
+
     dev_ctrs = train_ctrs[0:split]
     train_ctrs = train_ctrs[split:]
     
-    print('\nBuilding Train dataset ...')
-    img_train, mask_train = export_all_contours(train_ctrs,
-                                                TRAIN_IMG_PATH,
-                                                crop_size=crop_size)
-    print('\nBuilding Dev dataset ...')
-    img_dev, mask_dev = export_all_contours(dev_ctrs,
-                                            TRAIN_IMG_PATH,
-                                            crop_size=crop_size)
+    print()
+    print('Building Train dataset ...')
+    img_train, mask_train = export_all_contours(
+        train_ctrs,
+        TRAIN_IMG_PATH,
+        crop_size=crop_size,
+    )
+
+    print()
+    print('Building Dev dataset ...')
+    img_dev, mask_dev = export_all_contours(
+        dev_ctrs,
+        TRAIN_IMG_PATH,
+        crop_size=crop_size,
+    )
     
     input_shape = (crop_size, crop_size, 1)
     num_classes = 2
@@ -137,10 +147,18 @@ if __name__== '__main__':
     epochs = 40
     mini_batch_size = 1
 
-    image_generator = image_datagen.flow(img_train, shuffle=False,
-                                    batch_size=mini_batch_size, seed=seed)
-    mask_generator = mask_datagen.flow(mask_train, shuffle=False,
-                                    batch_size=mini_batch_size, seed=seed)
+    image_generator = image_datagen.flow(
+        img_train,
+        shuffle=False,
+        batch_size=mini_batch_size,
+        seed=seed,
+    )
+    mask_generator = mask_datagen.flow(
+        mask_train,
+        shuffle=False,
+        batch_size=mini_batch_size,
+        seed=seed,
+    )
     train_generator = izip(image_generator, mask_generator)
     
     max_iter = (len(train_ctrs) / mini_batch_size) * epochs
@@ -148,8 +166,9 @@ if __name__== '__main__':
     base_lr = K.eval(model.optimizer.lr)
     lrate = lr_poly_decay(model, base_lr, curr_iter, max_iter, power=0.5)
     for e in range(epochs):
-        print('\nMain Epoch {:d}\n'.format(e+1))
-        print('\nLearning rate: {:6f}\n'.format(lrate))
+        print()
+        print('Main Epoch {:d}'.format(e + 1))
+        print('Learning rate: {:6f}'.format(lrate))
         train_result = []
 
         iter_count = len(img_train) // mini_batch_size
