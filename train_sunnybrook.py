@@ -144,7 +144,7 @@ if __name__== '__main__':
     image_datagen = ImageDataGenerator(**kwargs)
     mask_datagen = ImageDataGenerator(**kwargs)
 
-    epochs = 40
+    epoch_count = 40
     mini_batch_size = 1
 
     image_generator = image_datagen.flow(
@@ -161,22 +161,23 @@ if __name__== '__main__':
     )
     train_generator = izip(image_generator, mask_generator)
     
-    max_iter = (len(train_ctrs) / mini_batch_size) * epochs
+    max_iter = (len(train_ctrs) / mini_batch_size) * epoch_count
     curr_iter = 0
     base_lr = K.eval(model.optimizer.lr)
-    lrate = lr_poly_decay(model, base_lr, curr_iter, max_iter, power=0.5)
-    for e in range(epochs):
+    learning_rate = lr_poly_decay(model, base_lr, curr_iter, max_iter, power=0.5)
+
+    for epoch in range(1, epoch_count + 1):
         print()
-        print('Main Epoch {:d}'.format(e + 1))
-        print('Learning rate: {:6f}'.format(lrate))
+        print('Main Epoch {:d}'.format(epoch))
+        print('Learning rate: {:6f}'.format(learning_rate))
         train_result = []
 
         iter_count = len(img_train) // mini_batch_size
         for img, mask in islice(train_generator, iter_count):
             res = model.train_on_batch(img, mask)
             curr_iter += 1
-            lrate = lr_poly_decay(model, base_lr, curr_iter,
-                                  max_iter, power=0.5)
+            learning_rate = lr_poly_decay(model, base_lr, curr_iter,
+                                          max_iter, power=0.5)
             train_result.append(res)
 
         train_result = np.asarray(train_result)
@@ -198,7 +199,7 @@ if __name__== '__main__':
             'sunnybrook',
             contour_type,
             'epoch',
-            str(e + 1),
+            str(epoch),
         ]) + '.h5'
 
         os.makedirs('model_logs', exist_ok=True)
