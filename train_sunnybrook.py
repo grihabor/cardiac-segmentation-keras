@@ -5,7 +5,7 @@ import os, fnmatch, sys
 import numpy as np
 from keras.preprocessing.image import ImageDataGenerator
 from keras import backend as K
-from itertools import izip
+from itertools import izip, islice
 
 from fcn_model import fcn_model
 from helpers import center_crop, lr_poly_decay, get_SAX_SERIES
@@ -151,13 +151,15 @@ if __name__== '__main__':
         print('\nMain Epoch {:d}\n'.format(e+1))
         print('\nLearning rate: {:6f}\n'.format(lrate))
         train_result = []
-        for iteration in range(len(img_train)/mini_batch_size):
-            img, mask = next(train_generator)
+
+        iter_count = len(img_train) // mini_batch_size
+        for img, mask in islice(train_generator, iter_count):
             res = model.train_on_batch(img, mask)
             curr_iter += 1
             lrate = lr_poly_decay(model, base_lr, curr_iter,
                                   max_iter, power=0.5)
             train_result.append(res)
+
         train_result = np.asarray(train_result)
         train_result = np.mean(train_result, axis=0).round(decimals=10)
         print('Train result {:s}:\n{:s}'.format(model.metrics_names, train_result))
