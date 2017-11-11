@@ -95,7 +95,7 @@ def export_all_contours(contours, data_path, crop_size):
     return images, masks
 
 
-if __name__== '__main__':
+def main():
 
     if len(sys.argv) < 3:
         sys.exit('Usage: python {} <i/o> <gpu_id>'.format(sys.argv[0]))
@@ -211,4 +211,5 @@ if __name__== '__main__':
         model.save_weights(save_path)
 
 
-
+if __name__== '__main__':
+    main()
