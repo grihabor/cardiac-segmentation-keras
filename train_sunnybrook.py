@@ -162,17 +162,32 @@ if __name__== '__main__':
 
         train_result = np.asarray(train_result)
         train_result = np.mean(train_result, axis=0).round(decimals=10)
-        print('Train result {:s}:\n{:s}'.format(model.metrics_names, train_result))
-        print('\nEvaluating dev set ...')
+
+        print('Train result {:s}:'.format(model.metrics_names))
+        print('{:s}'.format(train_result))
+        print()
+        print('Evaluating dev set ...')
+
         result = model.evaluate(img_dev, mask_dev, batch_size=32)
         result = np.round(result, decimals=10)
-        print('\nDev set result {:s}:\n{:s}'.format(model.metrics_names, result))
-        save_file = '_'.join(['sunnybrook', contour_type,
-                              'epoch', str(e+1)]) + '.h5'
-        if not os.path.exists('model_logs'):
-            os.makedirs('model_logs')
+
+        print()
+        print('Dev set result {:s}:'.format(model.metrics_names))
+        print('{:s}'.format(result))
+
+        save_file = '_'.join([
+            'sunnybrook',
+            contour_type,
+            'epoch',
+            str(e + 1),
+        ]) + '.h5'
+
+        os.makedirs('model_logs', exist_ok=True)
         save_path = os.path.join('model_logs', save_file)
-        print('\nSaving model weights to {:s}'.format(save_path))
+
+        print()
+        print('Saving model weights to {:s}'.format(save_path))
+
         model.save_weights(save_path)
 
 
