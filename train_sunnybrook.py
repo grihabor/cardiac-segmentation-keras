@@ -91,7 +91,7 @@ def map_all_contours(contour_path, contour_type, shuffle=True):
         np.random.shuffle(contours)
 
     print('Number of examples: {:d}'.format(len(contours)))
-    contours = map(Contour, contours)
+    contours = list(map(Contour, contours))
     
     return contours
 
@@ -111,13 +111,17 @@ def export_all_contours(contours, data_path, crop_size):
 
 
 def main():
-
     if len(sys.argv) < 3:
         sys.exit('Usage: python {} <i/o> <gpu_id>'.format(sys.argv[0]))
 
-    contour_type = sys.argv[1]
     os.environ['CUDA_VISIBLE_DEVICES'] = sys.argv[2]
-    crop_size = 100
+    train(
+        contour_type=sys.argv[1],
+        crop_size=100,
+    )
+
+
+def train(*, contour_type, crop_size):
 
     print('Mapping ground truth {} contours to images in train...'.format(contour_type))
     train_ctrs = map_all_contours(TRAIN_CONTOUR_PATH, contour_type, shuffle=True)
