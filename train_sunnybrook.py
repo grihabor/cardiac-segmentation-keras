@@ -53,7 +53,8 @@ class Contour(object):
     def __str__(self):
         return '<Contour for case %s, image %d>' % (self.case, self.img_no)
     
-    __repr__ = __str__
+    def __repr__(self):
+        return str(self)
 
 
 def read_contour(contour, data_path):
@@ -71,14 +72,24 @@ def read_contour(contour, data_path):
     return img, mask
 
 
+def _filter_contour_files(files, contour_type):
+    return fnmatch.filter(
+        files,
+        'IM-0001-*-'+contour_type+'contour-manual.txt'
+    )
+
+
 def map_all_contours(contour_path, contour_type, shuffle=True):
-    contours = [os.path.join(dirpath, f)
+    contours = [
+        os.path.join(dirpath, f)
         for dirpath, dirnames, files in os.walk(contour_path)
-        for f in fnmatch.filter(files,
-                        'IM-0001-*-'+contour_type+'contour-manual.txt')]
+        for f in _filter_contour_files(files, contour_type)
+    ]
+
     if shuffle:
         print('Shuffling data')
         np.random.shuffle(contours)
+
     print('Number of examples: {:d}'.format(len(contours)))
     contours = map(Contour, contours)
     
