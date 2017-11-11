@@ -14,4 +14,4 @@ services:
     extends:
       file: docker-compose.yml
       service: bash
-    command: python train_sunnybrook.py i 0
+    command: python3 train_sunnybrook.py i 0

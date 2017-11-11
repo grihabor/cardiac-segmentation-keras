@@ -1,3 +1,9 @@
 graphics
 weights
+
+# Git metadata 
 .git
+
+# Saved models
+model_logs
+

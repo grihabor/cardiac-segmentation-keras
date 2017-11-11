@@ -4,7 +4,7 @@ import re, sys, os
 import shutil, cv2
 import numpy as np
 
-from train_sunnybrook import read_contour, map_all_contours, export_all_contours
+from train_sunnybrook import read_contour, load_all_contours, export_all_contours
 from fcn_model import fcn_model
 from helpers import reshape, get_SAX_SERIES
 
@@ -108,12 +108,12 @@ if __name__== '__main__':
 
     save_dir = 'Sunnybrook_val_submission'
     print('\nProcessing val '+contour_type+' contours...')
-    val_ctrs = map_all_contours(VAL_CONTOUR_PATH, contour_type, shuffle=False)
+    val_ctrs = load_all_contours(VAL_CONTOUR_PATH, contour_type, shuffle=False)
     create_submission(val_ctrs, VAL_IMG_PATH)
 
     save_dir = 'Sunnybrook_online_submission'
     print('\nProcessing online '+contour_type+' contours...')
-    online_ctrs = map_all_contours(ONLINE_CONTOUR_PATH, contour_type, shuffle=False)
+    online_ctrs = load_all_contours(ONLINE_CONTOUR_PATH, contour_type, shuffle=False)
     create_submission(online_ctrs, ONLINE_IMG_PATH)
     print('\nAll done.')
 

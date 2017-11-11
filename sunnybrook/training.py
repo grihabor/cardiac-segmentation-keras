@@ -1,8 +1,18 @@
+import os
+import numpy as np
+from keras.preprocessing.image import ImageDataGenerator
+from keras import backend as K
+from itertools import islice
+
+from fcn_model import fcn_model
+from helpers import lr_poly_decay, get_SAX_SERIES
+
+from .contour import load_all_contours, export_all_contours
 
 
-def train(*, contour_type, crop_size):
+def train(image_path, contour_path, *, contour_type, crop_size, batch_size, seed, epoch_count):
     print('Mapping ground truth {} contours to images in train...'.format(contour_type))
-    train_ctrs = map_all_contours(TRAIN_CONTOUR_PATH, contour_type, shuffle=True)
+    train_ctrs = load_all_contours(contour_path, contour_type, shuffle=True)
     print('Done mapping training set')
 
     split = int(0.1 * len(train_ctrs))
@@ -14,16 +24,18 @@ def train(*, contour_type, crop_size):
     print('Building Train dataset ...')
     img_train, mask_train = export_all_contours(
         train_ctrs,
-        TRAIN_IMG_PATH,
+        image_path,
         crop_size=crop_size,
+        sax_series=get_SAX_SERIES(),
     )
 
     print()
     print('Building Dev dataset ...')
     img_dev, mask_dev = export_all_contours(
         dev_ctrs,
-        TRAIN_IMG_PATH,
+        image_path,
         crop_size=crop_size,
+        sax_series=get_SAX_SERIES(),
     )
 
     input_shape = (crop_size, crop_size, 1)
@@ -44,29 +56,29 @@ def train(*, contour_type, crop_size):
     image_generator = image_datagen.flow(
         img_train,
         shuffle=False,
-        batch_size=BATCH_SIZE,
-        seed=SEED,
+        batch_size=batch_size,
+        seed=seed,
     )
     mask_generator = mask_datagen.flow(
         mask_train,
         shuffle=False,
-        batch_size=BATCH_SIZE,
-        seed=SEED,
+        batch_size=batch_size,
+        seed=seed,
     )
-    train_generator = izip(image_generator, mask_generator)
+    train_generator = zip(image_generator, mask_generator)
 
-    max_iter = (len(train_ctrs) / BATCH_SIZE) * EPOCH_COUNT
+    max_iter = (len(train_ctrs) / batch_size) * epoch_count
     curr_iter = 0
     base_lr = K.eval(model.optimizer.lr)
     learning_rate = lr_poly_decay(model, base_lr, curr_iter, max_iter, power=0.5)
 
-    for epoch in range(1, EPOCH_COUNT + 1):
+    for epoch in range(1, epoch_count + 1):
         print()
         print('Main Epoch {:d}'.format(epoch))
         print('Learning rate: {:6f}'.format(learning_rate))
         train_result = []
 
-        iter_count = len(img_train) // BATCH_SIZE
+        iter_count = len(img_train) // batch_size
         for img, mask in islice(train_generator, iter_count):
             res = model.train_on_batch(img, mask)
             curr_iter += 1

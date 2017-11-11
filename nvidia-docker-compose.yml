@@ -14,7 +14,7 @@ services:
     - /home/grihabor/Desktop/sunnybrook:/sunnybrook_data
     - nvidia_driver_384.90:/usr/local/nvidia:ro
   train_sunnybrook:
-    command: python train_sunnybrook.py i 0
+    command: python3 train_sunnybrook.py i 0
     devices:
     - /dev/nvidia0
     - /dev/nvidiactl

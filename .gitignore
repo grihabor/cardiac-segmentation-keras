@@ -1,5 +1,14 @@
+# PyCharm files
 .idea
+
+# Python compiled files
 *.pyc
+
+# Python cache
+__pycache__
+
+# Models
 model_logs
+
 Sunnybrook_online_submission
 Sunnybrook_val_submission
