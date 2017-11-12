@@ -1,5 +1,5 @@
 #!/usr/bin/env python2.7
-
+import math
 from keras import optimizers
 from keras.models import Model
 from keras.layers import Dropout, Lambda
@@ -10,7 +10,7 @@ from keras import backend as K
 
 
 def mvn(tensor):
-    '''Performs per-channel spatial mean-variance normalization.'''
+    """Performs per-channel spatial mean-variance normalization."""
     epsilon = 1e-6
     mean = K.mean(tensor, axis=(1,2), keepdims=True)
     std = K.std(tensor, axis=(1,2), keepdims=True)
@@ -20,27 +20,32 @@ def mvn(tensor):
 
 
 def crop(tensors):
-    '''
-    List of 2 tensors, the second tensor having larger spatial dimensions.
-    '''
-    h_dims, w_dims = [], []
-    for t in tensors:
-        b, h, w, d = K.get_variable_shape(t)
-        h_dims.append(h)
-        w_dims.append(w)
-    crop_h, crop_w = (h_dims[1] - h_dims[0]), (w_dims[1] - w_dims[0])
-    rem_h = crop_h % 2
-    rem_w = crop_w % 2
-    crop_h_dims = (crop_h / 2, crop_h / 2 + rem_h)
-    crop_w_dims = (crop_w / 2, crop_w / 2 + rem_w)
-    cropped = Cropping2D(cropping=(crop_h_dims, crop_w_dims))(tensors[1])
-    
-    return cropped
+    """Crop tensor.
+
+    :param tensors: List of 2 tensors, the second tensor having larger spatial dimensions.
+    :return:
+    """
+
+    tensor_1, tensor_2 = tensors
+
+    _, h1, w1, _ = K.get_variable_shape(tensor_1)
+    _, h2, w2, _ = K.get_variable_shape(tensor_2)
+
+    def crop_dims(crop_):
+        return math.floor(crop_ / 2), math.ceil(crop_ / 2)
+
+    cropping = Cropping2D(
+        cropping=(
+            crop_dims(h2 - h1),
+            crop_dims(w2 - w1),
+        )
+    )
+    return cropping(tensor_2)
 
 
 def dice_coef(y_true, y_pred, smooth=0.0):
-    '''Average dice coefficient per batch.'''
-    axes = (1,2,3)
+    """Average dice coefficient per batch."""
+    axes = (1, 2, 3)
     intersection = K.sum(y_true * y_pred, axis=axes)
     summation = K.sum(y_true, axis=axes) + K.sum(y_pred, axis=axes)
     
@@ -52,7 +57,7 @@ def dice_coef_loss(y_true, y_pred):
 
 
 def jaccard_coef(y_true, y_pred, smooth=0.0):
-    '''Average jaccard coefficient per batch.'''
+    """Average jaccard coefficient per batch."""
     axes = (1,2,3)
     intersection = K.sum(y_true * y_pred, axis=axes)
     union = K.sum(y_true, axis=axes) + K.sum(y_pred, axis=axes) - intersection
@@ -60,9 +65,10 @@ def jaccard_coef(y_true, y_pred, smooth=0.0):
 
 
 def fcn_model(input_shape, num_classes, weights=None):
-    ''' "Skip" FCN architecture similar to Long et al., 2015
+    """ "Skip" FCN architecture similar to Long et al., 2015
+
     https://arxiv.org/abs/1411.4038
-    '''
+    """
     if num_classes == 2:
         num_classes = 1
         loss = dice_coef_loss
