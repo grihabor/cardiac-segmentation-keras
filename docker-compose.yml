@@ -9,7 +9,6 @@ services:
     environment:
       - LVSC_ROOT_PATH=/lvsc_data
       - SUNNYBROOK_ROOT_PATH=/sunnybrook_data
-    tty: true
 
   train_sunnybrook:
     extends:

@@ -8,9 +8,19 @@ from fcn_model import fcn_model
 from helpers import lr_poly_decay, get_SAX_SERIES
 
 from .contour import load_all_contours, export_all_contours
-from skimage import io
+from skimage import io, color
 
 DIR_DATA = './data'
+
+
+def _to_image(output):
+    arr = np.asarray(output)
+    normalized = arr / np.max(arr)
+    return (
+        normalized
+        if normalized.shape[-1] == 1
+        else np.reshape(normalized, normalized.shape[:-1])
+    )
 
 
 def predict_and_save(model, images, *, output_dir):
@@ -20,14 +30,8 @@ def predict_and_save(model, images, *, output_dir):
         image_path = os.path.join(output_dir, 'img_{}.png'.format(i))
         prediction_path = os.path.join(output_dir, 'pred_{}.png'.format(i))
 
-        print(image)
-        print(prediction)
-
-        image = np.asarray(image)
-        prediction = np.asarray(prediction)
-
-        io.imsave(image_path, image)
-        io.imsave(prediction_path, prediction)
+        io.imsave(image_path, _to_image(image))
+        io.imsave(prediction_path, _to_image(prediction))
 
 
 def train(image_path, contour_path, *, contour_type, crop_size, batch_size, seed, epoch_count):
