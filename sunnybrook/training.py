@@ -18,7 +18,7 @@ def _to_image(output):
     normalized = arr / np.max(arr)
     return (
         normalized
-        if normalized.shape[-1] == 1
+        if normalized.shape[-1] != 1
         else np.reshape(normalized, normalized.shape[:-1])
     )
 
