@@ -7,8 +7,9 @@
 # Python cache
 __pycache__
 
-# Models
+# Data
 model_logs
+data
 
 # Generated
 nvidia-docker-compose.yml

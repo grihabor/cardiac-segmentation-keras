@@ -14,13 +14,20 @@ DIR_DATA = './data'
 
 
 def predict_and_save(model, images, *, output_dir):
-    os.makedirs(output_dir)
+    os.makedirs(output_dir, exist_ok=True)
     predictions = model.predict(images)
     for i, (image, prediction) in enumerate(zip(images, predictions)):
         image_path = os.path.join(output_dir, 'img_{}.png'.format(i))
         prediction_path = os.path.join(output_dir, 'pred_{}.png'.format(i))
-        io.imsave(image, image_path)
-        io.imsave(prediction, prediction_path)
+
+        print(image)
+        print(prediction)
+
+        image = np.asarray(image)
+        prediction = np.asarray(prediction)
+
+        io.imsave(image_path, image)
+        io.imsave(prediction_path, prediction)
 
 
 def train(image_path, contour_path, *, contour_type, crop_size, batch_size, seed, epoch_count):
@@ -127,8 +134,9 @@ def train(image_path, contour_path, *, contour_type, crop_size, batch_size, seed
             str(epoch),
         ]) + '.h5'
 
-        os.makedirs('model_logs', exist_ok=True)
-        save_path = os.path.join('model_logs', save_file)
+        logs_dir = os.path.join(DIR_DATA, 'model_logs')
+        os.makedirs(logs_dir, exist_ok=True)
+        save_path = os.path.join(logs_dir, save_file)
 
         print()
         print('Saving model weights to {}'.format(save_path))
