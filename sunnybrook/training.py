@@ -89,8 +89,8 @@ def train(image_path, contour_path, *, contour_type, crop_size, batch_size, seed
         train_result = np.asarray(train_result)
         train_result = np.mean(train_result, axis=0).round(decimals=10)
 
-        print('Train result {:s}:'.format(model.metrics_names))
-        print('{:s}'.format(train_result))
+        print('Train result {}:'.format(str(model.metrics_names)))
+        print('{}'.format(str(train_result)))
         print()
         print('Evaluating dev set ...')
 
@@ -98,8 +98,8 @@ def train(image_path, contour_path, *, contour_type, crop_size, batch_size, seed
         result = np.round(result, decimals=10)
 
         print()
-        print('Dev set result {:s}:'.format(model.metrics_names))
-        print('{:s}'.format(result))
+        print('Dev set result {}:'.format(str(model.metrics_names)))
+        print('{}'.format(str(result)))
 
         save_file = '_'.join([
             'sunnybrook',
@@ -112,7 +112,7 @@ def train(image_path, contour_path, *, contour_type, crop_size, batch_size, seed
         save_path = os.path.join('model_logs', save_file)
 
         print()
-        print('Saving model weights to {:s}'.format(save_path))
+        print('Saving model weights to {}'.format(save_path))
 
         model.save_weights(save_path)
 

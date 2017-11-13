@@ -12,7 +12,7 @@ services:
     volumes:
     - .:/project
     - /home/grihabor/Desktop/sunnybrook:/sunnybrook_data
-    - nvidia_driver_384.90:/usr/local/nvidia:ro
+    - nvidia_driver_384.98:/usr/local/nvidia:ro
   train_sunnybrook:
     command: python3 train_sunnybrook.py i 0
     devices:
@@ -23,8 +23,8 @@ services:
       file: docker-compose.yml
       service: bash
     volumes:
-    - nvidia_driver_384.90:/usr/local/nvidia:ro
+    - nvidia_driver_384.98:/usr/local/nvidia:ro
 version: '2'
 volumes:
-  nvidia_driver_384.90:
+  nvidia_driver_384.98:
     external: true

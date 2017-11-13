@@ -10,5 +10,9 @@ __pycache__
 # Models
 model_logs
 
+# Generated
+nvidia-docker-compose.yml
+
 Sunnybrook_online_submission
 Sunnybrook_val_submission
+
