@@ -13,7 +13,7 @@ from skimage import io
 DIR_DATA = './data'
 
 
-def predict_and_save(model, images, output_dir):
+def predict_and_save(model, images, *, output_dir):
     os.makedirs(output_dir)
     predictions = model.predict(images)
     for i, (image, prediction) in enumerate(zip(images, predictions)):
@@ -115,6 +115,7 @@ def train(image_path, contour_path, *, contour_type, crop_size, batch_size, seed
         print('{}'.format(str(result)))
 
         predict_and_save(
+            model,
             img_dev[:10],
             output_dir=os.path.join(DIR_DATA, 'predictions'),
         )
