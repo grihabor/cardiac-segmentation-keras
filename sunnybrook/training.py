@@ -8,6 +8,19 @@ from fcn_model import fcn_model
 from helpers import lr_poly_decay, get_SAX_SERIES
 
 from .contour import load_all_contours, export_all_contours
+from skimage import io
+
+DIR_DATA = './data'
+
+
+def predict_and_save(model, images, output_dir):
+    os.makedirs(output_dir)
+    predictions = model.predict(images)
+    for i, (image, prediction) in enumerate(zip(images, predictions)):
+        image_path = os.path.join(output_dir, 'img_{}.png'.format(i))
+        prediction_path = os.path.join(output_dir, 'pred_{}.png'.format(i))
+        io.imsave(image, image_path)
+        io.imsave(prediction, prediction_path)
 
 
 def train(image_path, contour_path, *, contour_type, crop_size, batch_size, seed, epoch_count):
@@ -100,6 +113,11 @@ def train(image_path, contour_path, *, contour_type, crop_size, batch_size, seed
         print()
         print('Dev set result {}:'.format(str(model.metrics_names)))
         print('{}'.format(str(result)))
+
+        predict_and_save(
+            img_dev[:10],
+            output_dir=os.path.join(DIR_DATA, 'predictions'),
+        )
 
         save_file = '_'.join([
             'sunnybrook',
