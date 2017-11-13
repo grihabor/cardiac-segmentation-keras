@@ -5,5 +5,5 @@ weights
 .git
 
 # Saved models
-model_logs
+data
 
