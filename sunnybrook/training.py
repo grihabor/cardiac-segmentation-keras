@@ -4,7 +4,9 @@ from keras.preprocessing.image import ImageDataGenerator
 from keras import backend as K
 from itertools import islice
 
-from fcn_model import fcn_model
+#from fcn_model import fcn_model
+from .gridnet_model import get_model
+
 from helpers import lr_poly_decay, get_SAX_SERIES
 
 from .contour import load_all_contours, export_all_contours
@@ -64,7 +66,17 @@ def train(image_path, contour_path, *, contour_type, crop_size, batch_size, seed
 
     input_shape = (crop_size, crop_size, 1)
     num_classes = 2
-    model = fcn_model(input_shape, num_classes, weights=None)
+    # model = fcn_model(input_shape, num_classes, weights=None)
+    model = get_model(
+        ny=input_shape[0],
+        nx=input_shape[1],
+        chanel_num=(
+            input_shape[2]
+            if len(input_shape) > 2
+            else 1
+        ),
+        class_num=num_classes,
+    )
 
     kwargs = dict(
         rotation_range=180,

@@ -7,7 +7,7 @@ import sunnybrook
 
 SEED = 1234
 
-SUNNYBROOK_ROOT_PATH = os.environ['SUNNYBROOK_ROOT_PATH']
+SUNNYBROOK_ROOT_PATH = '/sunnybrook' # os.environ['SUNNYBROOK_ROOT_PATH']
 
 TRAIN_CONTOUR_PATH = os.path.join(
     SUNNYBROOK_ROOT_PATH,
@@ -25,9 +25,8 @@ def main():
 
     if len(sys.argv) < 3:
         sys.exit('Usage: python {} <i/o> <gpu_id>'.format(sys.argv[0]))
-
+    
     np.random.seed(SEED)
-
     os.environ['CUDA_VISIBLE_DEVICES'] = sys.argv[2]
     sunnybrook.train(
         TRAIN_IMG_PATH,
