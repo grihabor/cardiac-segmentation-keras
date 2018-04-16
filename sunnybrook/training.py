@@ -5,7 +5,8 @@ from keras import backend as K
 from itertools import islice
 
 #from fcn_model import fcn_model
-from .gridnet_model import get_model
+from fcn_model import fcn_model
+from .gridnet_model import gridnet_model
 
 from helpers import lr_poly_decay, get_SAX_SERIES
 
@@ -39,28 +40,10 @@ def predict_and_save(model, images, *, output_dir):
 
 
 def train(image_path, contour_path, *, contour_type, crop_size, batch_size, seed, epoch_count):
-    print('Mapping ground truth {} contours to images in train...'.format(contour_type))
-    train_ctrs = load_all_contours(contour_path, contour_type, shuffle=True)
-    print('Done mapping training set')
+    contours = load_all_contours(contour_path, contour_type, shuffle=True)
 
-    split = int(0.1 * len(train_ctrs))
-
-    dev_ctrs = train_ctrs[0:split]
-    train_ctrs = train_ctrs[split:]
-
-    print()
-    print('Building Train dataset ...')
-    img_train, mask_train = export_all_contours(
-        train_ctrs,
-        image_path,
-        crop_size=crop_size,
-        sax_series=get_SAX_SERIES(),
-    )
-
-    print()
-    print('Building Dev dataset ...')
-    img_dev, mask_dev = export_all_contours(
-        dev_ctrs,
+    loaded_train_x, loaded_train_y = export_all_contours(
+        contours,
         image_path,
         crop_size=crop_size,
         sax_series=get_SAX_SERIES(),
@@ -68,17 +51,10 @@ def train(image_path, contour_path, *, contour_type, crop_size, batch_size, seed
 
     input_shape = (crop_size, crop_size, 1)
     num_classes = 2
-    # model = fcn_model(input_shape, num_classes, weights=None)
-    model = get_model(
-        ny=input_shape[0],
-        nx=input_shape[1],
-        chanel_num=(
-            input_shape[2]
-            if len(input_shape) > 2
-            else 1
-        ),
-        class_num=num_classes,
-    )
+
+    m = gridnet_model
+
+    model = m(input_shape, num_classes)
 
     kwargs = dict(
         rotation_range=180,
@@ -92,20 +68,20 @@ def train(image_path, contour_path, *, contour_type, crop_size, batch_size, seed
     mask_datagen = ImageDataGenerator(**kwargs)
 
     image_generator = image_datagen.flow(
-        img_train,
+        loaded_train_x,
         shuffle=False,
         batch_size=batch_size,
         seed=seed,
     )
     mask_generator = mask_datagen.flow(
-        mask_train,
+        loaded_train_y,
         shuffle=False,
         batch_size=batch_size,
         seed=seed,
     )
     train_generator = zip(image_generator, mask_generator)
 
-    max_iter = (len(train_ctrs) / batch_size) * epoch_count
+    max_iter = (len(contours) / batch_size) * epoch_count
     curr_iter = 0
     base_lr = K.eval(model.optimizer.lr)
     learning_rate = lr_poly_decay(model, base_lr, curr_iter, max_iter, power=0.5)

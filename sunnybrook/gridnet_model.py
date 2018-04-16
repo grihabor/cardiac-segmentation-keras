@@ -62,9 +62,8 @@ def dice_loss_2d():
     return _dice_loss_2d
 
 
-def get_model(
-        nx:int, ny:int, 
-        chanel_num:int, class_num:int):
+def gridnet_model(input_shape, num_classes):
+
     with open('config.json', 'r') as f:
         config = json.load(f)
         
@@ -74,8 +73,8 @@ def get_model(
         kernel_initializer='glorot_uniform',
     )
     
-    input_tensor = Input(shape=(nx, ny, chanel_num))
-    input_weights_tensor = Input(shape=(nx, ny, class_num))
+    input_tensor = Input(shape=input_shape)
+    input_weights_tensor = Input(shape=input_shape)
     
     conv_1_1 = Conv2D(64, 3, **kwargs)(input_tensor)
     conv_1_2 = Conv2D(64, 3, **kwargs)(conv_1_1)
@@ -136,7 +135,7 @@ def get_model(
     up_conv_1_1 = Conv2D(64, 3, **kwargs)(concat_1)
     up_conv_1_2 = Conv2D(64, 3, **kwargs)(up_conv_1_1)   
     
-    up_conv_1_3 = Conv2D(class_num, 1, padding='same', activation='softmax', 
+    up_conv_1_3 = Conv2D(num_classes, 1, padding='same', activation='softmax',
             kernel_initializer='glorot_uniform')(up_conv_1_2)   
 
     if config['use_custom_weights']:
