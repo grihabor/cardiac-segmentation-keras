@@ -29,6 +29,8 @@ def predict_and_save(model, images, *, output_dir):
     os.makedirs(output_dir, exist_ok=True)
     predictions = model.predict(images)
     for i, (image, prediction) in enumerate(zip(images, predictions)):
+        prediction = prediction[:, :, 1]
+        
         image_path = os.path.join(output_dir, 'img_{}.png'.format(i))
         prediction_path = os.path.join(output_dir, 'pred_{}.png'.format(i))
 

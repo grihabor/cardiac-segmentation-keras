@@ -48,19 +48,15 @@ def load_all_contours(contour_path, contour_type, shuffle=True):
     ]
 
     if shuffle:
-        print('Shuffling data')
         np.random.shuffle(contours)
 
-    print('Number of examples: {:d}'.format(len(contours)))
-    contours = list(map(Contour, contours))
-
-    return contours
+    return list(map(Contour, contours))
 
 
 def export_all_contours(contours, data_path, crop_size, sax_series):
-    print('\nProcessing {:d} images and labels ...\n'.format(len(contours)))
-    images = np.zeros((len(contours), crop_size, crop_size, 1))
-    masks = np.zeros((len(contours), crop_size, crop_size, 1))
+    shape = (len(contours), crop_size, crop_size, 1)
+    images = np.zeros(shape)
+    masks = np.zeros(shape)
     for idx, contour in enumerate(contours):
         img, mask = read_contour(contour, data_path, sax_series)
         images[idx] = center_crop(img, crop_size=crop_size)
