@@ -32,7 +32,7 @@ def main():
         TRAIN_IMG_PATH,
         TRAIN_CONTOUR_PATH,
         contour_type=sys.argv[1],
-        crop_size=100,
+        crop_size=128,
         batch_size=1,
         seed=SEED,
         epoch_count=40,

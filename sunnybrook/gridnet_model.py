@@ -5,6 +5,7 @@ from keras.layers import Input, Conv2D,\
 from keras.optimizers import Adam, SGD
 from keras.initializers import RandomNormal
 from keras.losses import categorical_crossentropy
+import keras.backend as K
 
 from math import sqrt
 import json
@@ -57,7 +58,7 @@ def dice_metric_2d():
 
 def dice_loss_2d():
     def _dice_loss_2d(y_true, y_pred):
-        return 1.0 - dice_coef(y_true, y_pred, smooth=10.0)
+        return 1.0 - dice_metric_2d()(y_true, y_pred, smooth=10.0)
     return _dice_loss_2d
 
 
@@ -66,95 +67,77 @@ def get_model(
         chanel_num:int, class_num:int):
     with open('config.json', 'r') as f:
         config = json.load(f)
-
+        
+    kwargs = dict(
+        padding='same', 
+        activation='relu', 
+        kernel_initializer='glorot_uniform',
+    )
+    
     input_tensor = Input(shape=(nx, ny, chanel_num))
     input_weights_tensor = Input(shape=(nx, ny, class_num))
-    conv_1_1 = Conv2D(64, 3, padding='same', activation='relu', 
-            kernel_initializer=RandomNormal(0.0, sqrt(2 / (27 * chanel_num)), None))(input_tensor)
-    conv_1_2 = Conv2D(64, 3, padding='same', activation='relu', 
-            kernel_initializer=RandomNormal(0.0, sqrt(2 / (27 * 64)), None))(conv_1_1)
+    
+    conv_1_1 = Conv2D(64, 3, **kwargs)(input_tensor)
+    conv_1_2 = Conv2D(64, 3, **kwargs)(conv_1_1)
     pool_1 = MaxPool2D((2, 2), (2, 2), padding='same')(conv_1_2)
 
-    conv_1_3 = Conv2D(64, 3, padding='same', activation='relu', 
-            kernel_initializer=RandomNormal(0.0, sqrt(2 / (27 * 64)), None))(conv_1_2)
-    conv_1_4 = Conv2D(64, 3, padding='same', activation='relu', 
-            kernel_initializer=RandomNormal(0.0, sqrt(2 / (27 * 64)), None))(conv_1_3)
+    conv_1_3 = Conv2D(64, 3, **kwargs)(conv_1_2)
+    conv_1_4 = Conv2D(64, 3, **kwargs)(conv_1_3)
 
-    conv_2_1 = Conv2D(128, 3, padding='same', activation='relu', 
-            kernel_initializer=RandomNormal(0.0, sqrt(2 / (27 * 64)), None))(pool_1)
-    conv_2_2 = Conv2D(128, 3, padding='same', activation='relu', 
-            kernel_initializer=RandomNormal(0.0, sqrt(2 / (27 * 128)), None))(conv_2_1)
+    conv_2_1 = Conv2D(128, 3, **kwargs)(pool_1)
+    conv_2_2 = Conv2D(128, 3, **kwargs)(conv_2_1)
     pool_2 = MaxPool2D((2, 2), (2, 2), padding='same')(conv_2_2)
 
-    conv_2_3 = Conv2D(128, 3, padding='same', activation='relu', 
-            kernel_initializer=RandomNormal(0.0, sqrt(2 / (27 * 128)), None))(conv_2_2)
-    conv_2_4 = Conv2D(128, 3, padding='same', activation='relu', 
-            kernel_initializer=RandomNormal(0.0, sqrt(2 / (27 * 128)), None))(conv_2_3)
+    conv_2_3 = Conv2D(128, 3, **kwargs)(conv_2_2)
+    conv_2_4 = Conv2D(128, 3, **kwargs)(conv_2_3)
 
-    conv_3_1 = Conv2D(256, 3, padding='same', activation='relu', 
-            kernel_initializer=RandomNormal(0.0, sqrt(2 / (27 * 128)), None))(pool_2)
-    conv_3_2 = Conv2D(256, 3, padding='same', activation='relu', 
-            kernel_initializer=RandomNormal(0.0, sqrt(2 / (27 * 256)), None))(conv_3_1)
+    conv_3_1 = Conv2D(256, 3, **kwargs)(pool_2)
+    conv_3_2 = Conv2D(256, 3, **kwargs)(conv_3_1)
     pool_3 = MaxPool2D((2, 2), (2, 2), padding='same')(conv_3_2)
 
-    conv_3_3 = Conv2D(256, 3, padding='same', activation='relu', 
-            kernel_initializer=RandomNormal(0.0, sqrt(2 / (27 * 256)), None))(conv_3_2)
-    conv_3_4 = Conv2D(256, 3, padding='same', activation='relu', 
-            kernel_initializer=RandomNormal(0.0, sqrt(2 / (27 * 256)), None))(conv_3_3)
+    conv_3_3 = Conv2D(256, 3, **kwargs)(conv_3_2)
+    conv_3_4 = Conv2D(256, 3, **kwargs)(conv_3_3)
 
-    conv_4_1 = Conv2D(512, 3, padding='same', activation='relu', 
-            kernel_initializer=RandomNormal(0.0, sqrt(2 / (27 * 256)), None))(pool_3)
-    conv_4_2 = Conv2D(512, 3, padding='same', activation='relu', 
-            kernel_initializer=RandomNormal(0.0, sqrt(2 / (27 * 512)), None))(conv_4_1)
+    conv_4_1 = Conv2D(512, 3, **kwargs)(pool_3)
+    conv_4_2 = Conv2D(512, 3, **kwargs)(conv_4_1)
     pool_4 = MaxPool2D((2, 2), (2, 2), padding='same')(conv_4_2)
 
-    conv_4_3 = Conv2D(512, 3, padding='same', activation='relu', 
-            kernel_initializer=RandomNormal(0.0, sqrt(2 / (27 * 512)), None))(conv_4_2)
-    conv_4_4 = Conv2D(512, 3, padding='same', activation='relu', 
-            kernel_initializer=RandomNormal(0.0, sqrt(2 / (27 * 512)), None))(conv_4_3)
+    conv_4_3 = Conv2D(512, 3, **kwargs)(conv_4_2)
+    conv_4_4 = Conv2D(512, 3, **kwargs)(conv_4_3)
 
-    conv_5_1 = Conv2D(1024, 3, padding='same', activation='relu', 
-            kernel_initializer=RandomNormal(0.0, sqrt(2 / (27 * 512)), None))(pool_4)
-    conv_5_2 = Conv2D(1024, 3, padding='same', activation='relu', 
-            kernel_initializer=RandomNormal(0.0, sqrt(2 / (27 * 1024)), None))(conv_5_1)
+    conv_5_1 = Conv2D(1024, 3, **kwargs)(pool_4)
+    conv_5_2 = Conv2D(1024, 3, **kwargs)(conv_5_1)
 
     deconv_4 = Conv2DTranspose(512, (2, 2), strides=(2, 2), padding='same', 
-            kernel_initializer=RandomNormal(0.0, sqrt(2 / (27 * 1024)), None))(conv_5_2)
-
-    Model(inputs=[input_tensor], outputs=[deconv_4]).summary()
-    return
-    
+            kernel_initializer='glorot_uniform')(conv_5_2)
     concat_4 = Concatenate(axis=3)([deconv_4, conv_4_4])
-    up_conv_4_1 = Conv2D(512, 3, padding='same', activation='relu', 
-            kernel_initializer=RandomNormal(0.0, sqrt(2 / (27 * 1024)), None))(concat_4)
-    up_conv_4_2 = Conv2D(512, 3, padding='same', activation='relu', 
-            kernel_initializer=RandomNormal(0.0, sqrt(2 / (27 * 512)), None))(up_conv_4_1)
+    
+    up_conv_4_1 = Conv2D(512, 3, **kwargs)(concat_4)
+    up_conv_4_2 = Conv2D(512, 3, **kwargs)(up_conv_4_1)
 
-    deconv_3 = Conv2DTranspose(256, (2, 2), (2, 2), padding='same', 
-            kernel_initializer=RandomNormal(0.0, sqrt(2 / (27 * 512)), None))(up_conv_4_2)
+    deconv_3 = Conv2DTranspose(256, (2, 2), strides=(2, 2), padding='same', 
+            kernel_initializer='glorot_uniform')(up_conv_4_2)
     concat_3 = Concatenate(axis=3)([deconv_3, conv_3_4])  
-    up_conv_3_1 = Conv2D(256, 3, padding='same', activation='relu', 
-            kernel_initializer=RandomNormal(0.0, sqrt(2 / (27 * 512)), None))(concat_3)
-    up_conv_3_2 = Conv2D(256, 3, padding='same', activation='relu', 
-            kernel_initializer=RandomNormal(0.0, sqrt(2 / (27 * 256)), None))(up_conv_3_1)
+    
+    up_conv_3_1 = Conv2D(256, 3, **kwargs)(concat_3)
+    up_conv_3_2 = Conv2D(256, 3, **kwargs)(up_conv_3_1)
   
-    deconv_2 = Conv2DTranspose(128, (2, 2), (2, 2), padding='same', 
-            kernel_initializer=RandomNormal(0.0, sqrt(2 / (27 * 256)), None))(up_conv_3_2)
+    deconv_2 = Conv2DTranspose(128, (2, 2), strides=(2, 2), padding='same', 
+            kernel_initializer='glorot_uniform')(up_conv_3_2)
     concat_2 = Concatenate(axis=3)([deconv_2, conv_2_4])    
-    up_conv_2_1 = Conv2D(128, 3, padding='same', activation='relu', 
-            kernel_initializer=RandomNormal(0.0, sqrt(2 / (27 * 256)), None))(concat_2)
-    up_conv_2_2 = Conv2D(128, 3, padding='same', activation='relu', 
-            kernel_initializer=RandomNormal(0.0, sqrt(2 / (27 * 128)), None))(up_conv_2_1)
+    
+    up_conv_2_1 = Conv2D(128, 3, **kwargs)(concat_2)
+    up_conv_2_2 = Conv2D(128, 3, **kwargs)(up_conv_2_1)
 
-    deconv_1 = Conv2DTranspose(64, (2, 2), (2, 2), padding='same', 
-            kernel_initializer=RandomNormal(0.0, sqrt(2 / (27 * 128)), None))(up_conv_2_2)
+    deconv_1 = Conv2DTranspose(64, (2, 2), strides=(2, 2), padding='same', 
+            kernel_initializer='glorot_uniform')(up_conv_2_2)
     concat_1 = Concatenate(axis=3)([deconv_1, conv_1_4])
-    up_conv_1_1 = Conv2D(64, 3, padding='same', activation='relu', 
-            kernel_initializer=RandomNormal(0.0, sqrt(2 / (27 * 128)), None))(concat_1)
-    up_conv_1_2 = Conv2D(64, 3, padding='same', activation='relu', 
-            kernel_initializer=RandomNormal(0.0, sqrt(2 / (27 * 64)), None))(up_conv_1_1)   
+    
+    up_conv_1_1 = Conv2D(64, 3, **kwargs)(concat_1)
+    up_conv_1_2 = Conv2D(64, 3, **kwargs)(up_conv_1_1)   
+    
     up_conv_1_3 = Conv2D(class_num, 1, padding='same', activation='softmax', 
-            kernel_initializer=RandomNormal(0.0, sqrt(2 / (27 * 64)), None))(up_conv_1_2)   
+            kernel_initializer='glorot_uniform')(up_conv_1_2)   
 
     if config['use_custom_weights']:
         inputs=[input_tensor, input_weights_tensor]
@@ -162,7 +145,10 @@ def get_model(
         inputs=input_tensor
 
     model = Model(
-            inputs=inputs, outputs=up_conv_1_3)
+        inputs=inputs,
+        outputs=up_conv_1_3,
+    )
+    model.summary()
 
     if 'adam' == config['optimizer']['name'].lower():
         optimizer = Adam(
