@@ -4,9 +4,8 @@ from keras.preprocessing.image import ImageDataGenerator
 from keras import backend as K
 from itertools import islice
 
-#from fcn_model import fcn_model
 from fcn_model import fcn_model
-from .gridnet_model import gridnet_model
+from gridnet_model import gridnet_model
 
 from helpers import lr_poly_decay, get_SAX_SERIES
 
@@ -52,7 +51,7 @@ def train(image_path, contour_path, *, contour_type, crop_size, batch_size, seed
     input_shape = (crop_size, crop_size, 1)
     num_classes = 2
 
-    m = gridnet_model
+    m = fcn_model
 
     model = m(input_shape, num_classes)
 
