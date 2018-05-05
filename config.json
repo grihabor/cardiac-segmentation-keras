@@ -1,0 +1,10 @@
+{
+    "optimizer": {
+        "name": "adam",
+        "learning_rate": 0.001
+    }, 
+    "loss": {
+        "name": "dice_2d"
+    },
+    "use_custom_weights": false
+}

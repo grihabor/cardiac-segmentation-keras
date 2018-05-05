@@ -79,8 +79,8 @@ def center_crop(ndarray, crop_size):
         ndarray = np.pad(ndarray, npad, 'constant', constant_values=0)
         h, w, d = ndarray.shape
     # center crop
-    h_offset = (h - crop_size) / 2
-    w_offset = (w - crop_size) / 2
+    h_offset = (h - crop_size) // 2
+    w_offset = (w - crop_size) // 2
     cropped = ndarray[h_offset:(h_offset+crop_size),
                       w_offset:(w_offset+crop_size), :]
 

@@ -1,5 +1,20 @@
+# PyCharm files
 .idea
+
+# Python compiled files
 *.pyc
+
+# Python cache
+__pycache__
+
+# Data
 model_logs
+data
+
+# Generated
+nvidia-docker-compose.yml
+
 Sunnybrook_online_submission
 Sunnybrook_val_submission
+
+.ipynb_checkpoints
